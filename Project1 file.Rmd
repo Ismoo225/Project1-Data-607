@@ -1,0 +1,63 @@
+---
+title: "Project1"
+author: "Ismael Fanny"
+date: "2023-09-25"
+output: html_document
+---
+
+
+```{r cars}
+#Load packages
+# Load the necessary libraries
+library(stringr)
+library(dplyr)
+
+# Read the data from the text file
+chess_data <- readLines("Tournament info.txt")
+
+
+# Initialize empty lists to store the extracted information
+player_names <- vector("character")
+player_states <- vector("character")
+total_points <- vector("numeric")
+player_ratings <- vector("numeric")
+
+# Loop through each line of the data
+for (line in chess_data) {
+  # Extract player name, state, total points, and pre-rating
+  if (grepl("^\\s*\\d+\\s*\\|", line)) {
+    parts <- strsplit(line, "\\|")[[1]]
+    player_names <- c(player_names, trimws(parts[2]))
+    player_states <- c(player_states, trimws(parts[3]))
+    total_points <- c(total_points, as.numeric(trimws(parts[4])))
+    player_ratings <- c(player_ratings, as.numeric(str_extract(parts[6], "\\d+")))
+  }
+}
+# Calculate the average pre-chess rating of opponents
+average_ratings <- vector("numeric")
+for (i in 1:length(player_ratings)) {
+  opponent_ratings <- player_ratings[-i]
+  average_rating <- mean(opponent_ratings)
+  average_ratings <- c(average_ratings, average_rating)
+}
+
+# Create a data frame with the extracted information
+chess_df <- data.frame(
+  Player_Name = player_names,
+  Player_State = player_states,
+  Total_Points = total_points,
+  Player_Pre_Rating = player_ratings,
+  Average_Pre_Chess_Rating_of_Opponents = average_ratings
+)
+
+# Write the data frame to a CSV file
+write.csv(chess_df, "chess_players.csv", row.names = FALSE)
+
+# Print the first few rows of the data frame
+head(chess_df)
+
+
+
+
+
+```
